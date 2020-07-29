@@ -4,7 +4,7 @@ $ sudo apt-get install rabbitmq-server
 install virtualenv:
 $ python3 -m pip install virtualenv
 
-make retangle virtualenv, name env:
+create virtualenv, name env:
 $ virtualenv -p python3 env
 
 active virtualenv:
