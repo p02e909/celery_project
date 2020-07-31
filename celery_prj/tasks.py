@@ -18,30 +18,44 @@ def update_db():
     metadata = db.MetaData()
     connection = engine.connect()
     rectangle = db.Table('rectangle', metadata, autoload=True, autoload_with=engine)
-    query = db.select([rectangle.columns.rectangle_id, rectangle.columns.a, rectangle.columns.b])
-    flag = True
+    query = db.select([
+        rectangle.columns.rectangle_id,
+        rectangle.columns.a,
+        rectangle.columns.b,
+        rectangle.columns.perimeter,
+        rectangle.columns.area
+    ])
     result_proxy = connection.execute(query)
+    flag = True
     while flag:
-        print(flag)
-        result_list = result_proxy.fetchmany(3)
+        result_list = result_proxy.fetchmany(10)
         if result_list == []:
             flag = False
-            print(flag)
         else:
-            for item in result_list:
-                rectangle_id = item[0]
-                a = item[1]
-                b = item[2]
-        
+            for rectangle_info in result_list:
+                rectangle_id = rectangle_info[0]
+                a = rectangle_info[1]
+                b = rectangle_info[2]
+                perimeter = rectangle_info[3]
+                area = rectangle_info[4]
+
                 # calcular perimeter and area
-                perimeter, area = calcular_rectangle(a, b)
-        
-                # update database
-                query_update = db.update(rectangle).values(
-                        perimeter=perimeter,
-                        area=area
-                ).where(rectangle.columns.rectangle_id==rectangle_id)
-                result = connection.execute(query_update)
+                if a > 0 or b > 0:
+                    new_perimeter, new_area = calcular_rectangle(a, b)
+
+                # dont update database if a <= 0 or b <= 0
+                if a <= 0 or b <=0:
+                    pass
+                # dont update database if perimeter and area not change
+                elif perimeter == new_perimeter and area == new_area:
+                    pass
+                else:
+                    # update database
+                    query_update = db.update(rectangle).values(
+                            perimeter=new_perimeter,
+                            area=new_area
+                    ).where(rectangle.columns.rectangle_id==rectangle_id)
+                    result = connection.execute(query_update)
     result_proxy.close()
     return ""
 
