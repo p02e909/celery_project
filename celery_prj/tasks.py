@@ -1,5 +1,8 @@
 import sqlalchemy as db
+
+from . import my_exception
 from .celery import app
+
 
 # Some examples of connecting to various databases can be found here:
 # https://docs.sqlalchemy.org/en/13/core/engines.html#postgresql
@@ -7,8 +10,11 @@ from .celery import app
 
 
 def calcular_rectangle(a, b):
-    perimeter = 100000 * (a + b)
-    area = a * b
+    if a > 0 and b > 0:
+        perimeter = 2 * (a + b)
+        area = a * b
+    else:
+        raise my_exception.WrongInput("a and b must be greater than 0")
     return perimeter, area
 
 
@@ -31,6 +37,7 @@ def update_db():
         result_list = result_proxy.fetchmany(10)
         if result_list == []:
             flag = False
+            print(flag)
         else:
             for rectangle_info in result_list:
                 rectangle_id = rectangle_info[0]
@@ -39,25 +46,27 @@ def update_db():
                 perimeter = rectangle_info[3]
                 area = rectangle_info[4]
 
-                # calcular perimeter and area
-                if a > 0 or b > 0:
+                try:
                     new_perimeter, new_area = calcular_rectangle(a, b)
 
-                # dont update database if a <= 0 or b <= 0
-                if a <= 0 or b <=0:
-                    pass
-                # dont update database if perimeter and area not change
-                elif perimeter == new_perimeter and area == new_area:
-                    pass
-                else:
-                    # update database
-                    query_update = db.update(rectangle).values(
-                            perimeter=new_perimeter,
-                            area=new_area
-                    ).where(rectangle.columns.rectangle_id==rectangle_id)
-                    result = connection.execute(query_update)
+                    # dont update database if perimeter and area not change
+                    if perimeter == new_perimeter and area == new_area:
+                        pass
+                    else:
+                        # update database
+                        print("updated")
+                        query_update = db.update(rectangle).values(
+                                perimeter=new_perimeter,
+                                area=new_area
+                        ).where(rectangle.columns.rectangle_id==rectangle_id)
+                        result = connection.execute(query_update)
+                except my_exception.WrongInput:
+                    pass # or write log
+                except Exception as e:
+                    pass # or write log
+
     result_proxy.close()
-    return ""
+    return True
 
 
 if __name__=="__main__":
