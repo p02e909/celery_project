@@ -2,11 +2,14 @@ import sqlalchemy as db
 
 from . import my_exception
 from . import celery
+from . import my_config
 
 
 # Some examples of connecting to various databases can be found here:
 # https://docs.sqlalchemy.org/en/13/core/engines.html#postgresql
 # Image we have sqlite database name rectangle, table rectangle
+
+DB_PATH = my_config.DB_PATH
 
 
 def calcular_rectangle(a, b):
@@ -20,7 +23,7 @@ def calcular_rectangle(a, b):
 
 @celery.app.task
 def update_db():
-    engine = db.create_engine('sqlite:///rectangle.db')
+    engine = db.create_engine(DB_PATH)
     metadata = db.MetaData()
     connection = engine.connect()
     rectangle = db.Table('rectangle', metadata, autoload=True, autoload_with=engine)
