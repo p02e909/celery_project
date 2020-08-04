@@ -1,7 +1,7 @@
 import sqlalchemy as db
 
 from . import my_exception
-from .celery import app
+from . import celery
 
 
 # Some examples of connecting to various databases can be found here:
@@ -18,7 +18,7 @@ def calcular_rectangle(a, b):
     return perimeter, area
 
 
-@app.task
+@celery.app.task
 def update_db():
     engine = db.create_engine('sqlite:///rectangle.db')
     metadata = db.MetaData()
@@ -37,7 +37,6 @@ def update_db():
         result_list = result_proxy.fetchmany(10)
         if result_list == []:
             flag = False
-            print(flag)
         else:
             for rectangle_info in result_list:
                 rectangle_id = rectangle_info[0]
@@ -54,7 +53,6 @@ def update_db():
                         pass
                     else:
                         # update database
-                        print("updated")
                         query_update = db.update(rectangle).values(
                                 perimeter=new_perimeter,
                                 area=new_area
