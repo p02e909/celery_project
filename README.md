@@ -17,7 +17,7 @@ $ source env/bin/activate</p>
 <p>install celery, sqlalchemy:<br>
 $ pip install celery sqlalchemy</p>
 
-<p>test calcular perimeter and area command:<br>
+<p>test calcular perimeter and area command (move to folder celery_project):<br>
 $ python3 -m unittest celery_prj.tests.test_calcular_rectangle -vvv</p>
 
 <p>all test case in celery_prj/tests:<br>
