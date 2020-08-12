@@ -29,6 +29,7 @@ $ celery -A celery_prj worker -B -c=1 --config=celeryconfig</p>
 <p>ex:<br>
 $ cd celery_project<br>
 $ source env/bin/activate<br>
+$ python<br>
 >>> from celery_prj import tasks<br>
 >>> tasks.query_rectangle(5)<br>
 {'a': 5, 'b': 5, 'perimeter': 20, 'area': 25}<br>
